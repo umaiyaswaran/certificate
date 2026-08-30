@@ -1,0 +1,17 @@
+{
+  "name": "certificate-api",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "archiver": "latest",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "mongodb": "latest",
+    "multer": "latest",
+    "pdfkit": "latest",
+    "xlsx": "latest"
+  }
+}
