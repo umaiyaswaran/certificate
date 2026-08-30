@@ -112,12 +112,12 @@ const api = {
 };
 
 function App() {
-  const [page, setPage] = useState<Page>('dashboard');
+  const [page, setPage] = useState<Page>(() => (localStorage.getItem('cg_page') as Page) || 'dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('cg_token'));
 
-  const navigate = (next: Page) => { setPage(next); setMobileOpen(false); };
+  const navigate = (next: Page) => { setPage(next); localStorage.setItem('cg_page', next); setMobileOpen(false); };
 
   if (!token) return <Login onLogin={(t) => { localStorage.setItem('cg_token', t); setToken(t); }} />;
 
