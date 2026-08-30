@@ -506,7 +506,7 @@ function Generator() {
         <div className={toast.includes('success') ? 'alert success' : 'alert error'}>
           {toast.includes('success') ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
           {toast}
-          <button onClick={() => setToast('')} style={{ marginLeft: 'auto' }}><X size={14} /></button>
+          <button onClick={() => setToast('')} className="icon-button"><X size={14} /></button>
         </div>
       )}
 
@@ -543,7 +543,7 @@ function Generator() {
             <span className="number">02</span>
             <div><h2>Upload participant data</h2><p>Download the template, fill in student details, then upload.</p></div>
           </div>
-          <button className="secondary-button" onClick={downloadTemplate} style={{ marginBottom: 16 }}>
+          <button className="secondary-button" onClick={downloadTemplate}>
             <FileSpreadsheet size={15} /> Download {certType === 'winner' ? 'Winner' : 'Participation'} Template
           </button>
           <div
@@ -570,7 +570,7 @@ function Generator() {
               ))}
             </div>
           )}
-          <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
             <button className="secondary-button" onClick={() => setStep(1)}><ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back</button>
           </div>
         </div>
@@ -602,7 +602,7 @@ function Generator() {
               ))}
             </div>
           )}
-          <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
             <button className="secondary-button" onClick={() => setStep(2)}><ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back</button>
             <button className="primary-button" onClick={() => setStep(4)}>Continue <ChevronRight size={15} /></button>
           </div>
@@ -617,7 +617,7 @@ function Generator() {
               <span className="number">04</span>
               <div><h2>Preview participants</h2><p>Select students for certificate generation.</p></div>
             </div>
-            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 10 }}>
               <button className="secondary-button" onClick={toggleAllParticipants}>
                 {selectedParticipants.size === participants.length ? 'Unselect All' : 'Select All'}
               </button>
@@ -646,7 +646,7 @@ function Generator() {
             <CertificatePreview type={certType} eventName={eventName} eventDate={eventDate} participant={participants[0]} signatories={signatories.filter(s => selectedSignatories.has(s._id))} />
           </div>
 
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
             <button className="secondary-button" onClick={() => setStep(3)}><ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back</button>
             <button className="primary-button gold" onClick={generateCertificates} disabled={generating || selectedParticipants.size === 0}>
               {generating ? 'Generating...' : `Generate ${selectedParticipants.size} Certificate${selectedParticipants.size !== 1 ? 's' : ''}`}
@@ -662,13 +662,13 @@ function Generator() {
             <span className="number"><Check size={16} /></span>
             <div><h2>Certificates generated</h2><p>{generated.length} certificate{generated.length !== 1 ? 's' : ''} created successfully.</p></div>
           </div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)' }}>
             <button className="primary-button" onClick={downloadZip}><Download size={15} /> Download All (ZIP)</button>
           </div>
           <div className="checkbox-list">
             {generated.map(cert => (
               <div className="checkbox-item" key={cert.certificate_id} style={{ cursor: 'default' }}>
-                <FileText size={16} style={{ color: 'var(--gold)' }} />
+                <FileText size={16} style={{ color: 'var(--accent)' }} />
                 <div className="item-info">
                   <strong>{cert.student_name}</strong>
                   <small>{cert.certificate_id}</small>
@@ -679,7 +679,7 @@ function Generator() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 'var(--space-lg)' }}>
             <button className="secondary-button" onClick={() => { setStep(1); setGenerated([]); setParticipants([]); setUploaded(false); }}>Create Another Batch</button>
           </div>
         </div>
@@ -958,7 +958,7 @@ function SettingsPage() {
             <span className="number">04</span>
             <div><h2>Certificate signatories</h2><p>Manage people who sign certificates.</p></div>
           </div>
-          <button className="primary-button" onClick={() => setShowAddSig(true)} style={{ marginBottom: 16 }}><Plus size={15} /> Add Signatory</button>
+          <button className="primary-button" onClick={() => setShowAddSig(true)}><Plus size={15} /> Add Signatory</button>
           {signatories.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon"><Users size={32} /></div>
