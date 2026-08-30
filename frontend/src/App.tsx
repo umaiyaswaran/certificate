@@ -114,6 +114,7 @@ const api = {
 function App() {
   const [page, setPage] = useState<Page>('dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('cg_token'));
 
   const navigate = (next: Page) => { setPage(next); setMobileOpen(false); };
@@ -122,7 +123,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className={mobileOpen ? 'sidebar open' : 'sidebar'}>
+      <aside className={mobileOpen ? 'sidebar open' : `sidebar${collapsed ? ' collapsed' : ''}`}>
         <div className="brand">
           <div className="brand-mark"><Sparkles size={16} /></div>
           <div>
@@ -154,7 +155,7 @@ function App() {
       </aside>
       <main className="main">
         <header className="topbar">
-          <button className="icon-button mobile-menu" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="icon-button mobile-menu" onClick={() => { if (window.innerWidth <= 768) setMobileOpen(!mobileOpen); else setCollapsed(!collapsed); }}>
             <Menu size={20} />
           </button>
           <div className="crumb">

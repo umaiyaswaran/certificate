@@ -191,6 +191,10 @@ button { cursor: pointer; }
   border-right: 1px solid rgba(124, 58, 237, 0.2);
 }
 
+.sidebar.collapsed {
+  display: none;
+}
+
 .brand, .login-brand {
   display: flex;
   align-items: center;
@@ -333,7 +337,7 @@ button { cursor: pointer; }
   animation: fadeInDown 0.5s ease-out;
 }
 
-.mobile-menu { display: none; }
+.mobile-menu { display: inline-grid; margin-right: 10px; }
 
 .crumb {
   display: flex;
