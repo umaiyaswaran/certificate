@@ -443,28 +443,33 @@ const processTransparentPng = async (buffer, output) => {
   await sharp(data, { raw: info }).png({ compressionLevel: 9 }).toFile(output);
 };
 const processSignaturePng = async (buffer, output) => {
-  const { data, info } = await sharp(buffer).flatten({ background: '#ffffff' }).grayscale().raw().toBuffer({ resolveWithObject: true });
+  const image = sharp(buffer);
+  const metadata = await image.metadata();
+  const { data, info } = await image
+    .grayscale()
+    .linear(1.8, -60)
+    .raw()
+    .toBuffer({ resolveWithObject: true });
   const rgba = Buffer.alloc(info.width * info.height * 4);
-  for (let pixel = 0; pixel < data.length; pixel += 1) {
-    const luminance = data[pixel];
-    const outputIndex = pixel * 4;
-    const isInk = luminance < 220;
-    rgba[outputIndex] = isInk ? 0 : 255;
-    rgba[outputIndex + 1] = isInk ? 0 : 255;
-    rgba[outputIndex + 2] = isInk ? 0 : 255;
-    rgba[outputIndex + 3] = isInk ? 255 : 0;
+  for (let i = 0; i < data.length; i++) {
+    const lum = data[i];
+    const out = i * 4;
+    const isInk = lum < 128;
+    rgba[out] = 0;
+    rgba[out + 1] = 0;
+    rgba[out + 2] = 0;
+    rgba[out + 3] = isInk ? Math.round((128 - lum) / 128 * 255) : 0;
   }
   await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png({ compressionLevel: 9 }).toFile(output);
 };
 const prepareSignature = async file => {
   if (!file) return '';
   try {
-    const output = path.join(root, 'templates', `signature_render_${path.basename(file)}.png`);
-    await processSignaturePng(await readFile(file), output);
-    return output;
+    if (fs.existsSync(file)) return file;
+    return '';
   } catch (error) {
     console.error(`Unable to prepare signature ${file}:`, error.message);
-    return file;
+    return '';
   }
 };
 
