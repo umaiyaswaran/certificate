@@ -155,12 +155,7 @@ app.post('/api/assets/logo/:type', auth, upload.single('file'), async (req, res)
   try {
     await connectDB();
     let buffer = req.file.buffer;
-    if (sharp) try {
-      const { data, info } = await sharp(buffer).grayscale().linear(1.8, -60).raw().toBuffer({ resolveWithObject: true });
-      const rgba = Buffer.alloc(info.width * info.height * 4);
-      for (let i = 0; i < data.length; i++) { const lum = data[i]; const o = i * 4; rgba[o] = 0; rgba[o+1] = 0; rgba[o+2] = 0; rgba[o+3] = lum < 128 ? Math.round((128 - lum) / 128 * 255) : 0; }
-      buffer = await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
-    } catch {}
+    if (sharp) try { buffer = await sharp(buffer).png().toBuffer(); } catch {}
     const base64 = `data:image/png;base64,${buffer.toString('base64')}`;
     await collections.settings.updateOne({ key: 'organization' }, { $set: { [`${req.params.type}_logo`]: base64 } }, { upsert: true });
     res.json({ url: `/api/assets/logo/${req.params.type}?v=${Date.now()}` });
@@ -192,9 +187,9 @@ app.post('/api/signatories', auth, upload.single('signature'), async (req, res) 
     await connectDB();
     let buffer = req.file.buffer;
     if (sharp) try {
-      const { data, info } = await sharp(buffer).grayscale().linear(1.8, -60).raw().toBuffer({ resolveWithObject: true });
+      const { data, info } = await sharp(buffer).grayscale().normalize().threshold(160).negate().raw().toBuffer({ resolveWithObject: true });
       const rgba = Buffer.alloc(info.width * info.height * 4);
-      for (let i = 0; i < data.length; i++) { const lum = data[i]; const o = i * 4; rgba[o] = 0; rgba[o+1] = 0; rgba[o+2] = 0; rgba[o+3] = lum < 128 ? Math.round((128 - lum) / 128 * 255) : 0; }
+      for (let i = 0; i < data.length; i++) { const lum = data[i]; const o = i * 4; rgba[o] = 0; rgba[o+1] = 0; rgba[o+2] = 0; rgba[o+3] = lum > 128 ? 255 : 0; }
       buffer = await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
     } catch {}
     const signatory = { name, role, signature_image: `data:image/png;base64,${buffer.toString('base64')}`, created_at: new Date() };
@@ -213,9 +208,9 @@ app.put('/api/signatories/:id', auth, upload.single('signature'), async (req, re
     if (req.file && req.file.mimetype === 'image/jpeg') {
       let buffer = req.file.buffer;
       if (sharp) try {
-        const { data, info } = await sharp(buffer).grayscale().linear(1.8, -60).raw().toBuffer({ resolveWithObject: true });
+        const { data, info } = await sharp(buffer).grayscale().normalize().threshold(160).negate().raw().toBuffer({ resolveWithObject: true });
         const rgba = Buffer.alloc(info.width * info.height * 4);
-        for (let i = 0; i < data.length; i++) { const lum = data[i]; const o = i * 4; rgba[o] = 0; rgba[o+1] = 0; rgba[o+2] = 0; rgba[o+3] = lum < 128 ? Math.round((128 - lum) / 128 * 255) : 0; }
+        for (let i = 0; i < data.length; i++) { const lum = data[i]; const o = i * 4; rgba[o] = 0; rgba[o+1] = 0; rgba[o+2] = 0; rgba[o+3] = lum > 128 ? 255 : 0; }
         buffer = await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
       } catch {}
       updates.signature_image = `data:image/png;base64,${buffer.toString('base64')}`;

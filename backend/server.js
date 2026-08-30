@@ -434,7 +434,16 @@ app.get('/api/events/:eventId/participants', auth, async (req, res) => {
 const pdfFont = (doc, file, fallback) => { try { doc.font(file); } catch { doc.font(fallback); } };
 const fitPdfText = (doc, text, font, fallback, maxSize, minSize, maxWidth) => { for (let size = maxSize; size >= minSize; size -= 1) { pdfFont(doc, font, fallback); doc.fontSize(size); if (doc.widthOfString(text) <= maxWidth) return size; } return minSize; };
 const pdfLines = (doc, text, font, size, width) => { doc.font(font).fontSize(size); return doc.heightOfString(text, { width, lineGap: 2 }); };
-const drawPdfImage = (doc, file, x, y, width, height, opacity = 1) => { if (!file) return; try { doc.save().opacity(opacity).image(file, x, y, { fit: [width, height], align: 'center', valign: 'center' }).restore(); } catch (error) { console.error(`Unable to render image ${file}:`, error.message); } };
+const drawPdfImage = (doc, file, x, y, width, height, opacity = 1) => {
+  if (!file) return;
+  try {
+    const buf = fs.existsSync(file) ? fs.readFileSync(file) : null;
+    if (!buf) return;
+    doc.save().opacity(opacity).image(buf, x, y, { fit: [width, height], align: 'center', valign: 'center' }).restore();
+  } catch (error) {
+    console.error(`Unable to render image ${file}:`, error.message);
+  }
+};
 const processTransparentPng = async (buffer, output) => {
   const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   for (let index = 0; index < data.length; index += info.channels) {
@@ -443,22 +452,21 @@ const processTransparentPng = async (buffer, output) => {
   await sharp(data, { raw: info }).png({ compressionLevel: 9 }).toFile(output);
 };
 const processSignaturePng = async (buffer, output) => {
-  const image = sharp(buffer);
-  const metadata = await image.metadata();
-  const { data, info } = await image
+  const { data, info } = await sharp(buffer)
     .grayscale()
-    .linear(1.8, -60)
+    .normalize()
+    .threshold(160)
+    .negate()
     .raw()
     .toBuffer({ resolveWithObject: true });
   const rgba = Buffer.alloc(info.width * info.height * 4);
   for (let i = 0; i < data.length; i++) {
     const lum = data[i];
     const out = i * 4;
-    const isInk = lum < 128;
     rgba[out] = 0;
     rgba[out + 1] = 0;
     rgba[out + 2] = 0;
-    rgba[out + 3] = isInk ? Math.round((128 - lum) / 128 * 255) : 0;
+    rgba[out + 3] = lum > 128 ? 255 : 0;
   }
   await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } }).png({ compressionLevel: 9 }).toFile(output);
 };
