@@ -666,10 +666,14 @@ app.get('/api/certificates/:certificateId/download', async (req, res) => {
   const record = await collections.certificates.findOne({ certificate_id: safe(req.params.certificateId) });
   if (!record) return res.status(404).json({ message: 'Certificate not found' });
   try {
-    const filePath = path.join(root, record.pdf_path);
-    res.download(filePath, `${record.student_name.replace(/[^a-zA-Z0-9]/g, '_')}_${record.certificate_id}.pdf`);
-  } catch {
-    res.status(404).json({ message: 'PDF file not found' });
+    const settings = await collections.settings.findOne({ key: 'organization' }) || defaultSettings;
+    const pdf = await generatePDF(record, settings);
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `attachment; filename="${record.student_name.replace(/[^a-zA-Z0-9]/g, '_')}_${record.certificate_id}.pdf"`);
+    res.send(pdf);
+  } catch (error) {
+    console.error('PDF download failed:', error);
+    res.status(500).json({ message: 'PDF generation failed' });
   }
 });
 
@@ -678,6 +682,7 @@ app.get('/api/events/:eventId/certificates/zip', auth, async (req, res) => {
   if (!records.length) return res.status(404).json({ message: 'No certificates found' });
 
   const event = await collections.events.findOne({ _id: toId(req.params.eventId) });
+  const settings = await collections.settings.findOne({ key: 'organization' }) || defaultSettings;
   const zipName = event ? `${event.event_name.replace(/[^a-zA-Z0-9]/g, '_')}_Certificates.zip` : 'certificates.zip';
 
   res.attachment(zipName);
@@ -686,10 +691,12 @@ app.get('/api/events/:eventId/certificates/zip', auth, async (req, res) => {
 
   for (const record of records) {
     try {
-      const pdfPath = path.join(root, record.pdf_path);
+      const pdf = await generatePDF(record, settings);
       const filename = `${record.student_name.replace(/[^a-zA-Z0-9]/g, '_')}_${record.certificate_id}.pdf`;
-      archive.append(await readFile(pdfPath), { name: filename });
-    } catch {}
+      archive.append(pdf, { name: filename });
+    } catch (error) {
+      console.error(`ZIP: Failed to generate PDF for ${record.certificate_id}:`, error.message);
+    }
   }
 
   await archive.finalize();
