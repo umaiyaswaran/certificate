@@ -9,6 +9,7 @@ import XLSX from 'xlsx';
 import { createRequire } from 'node:module';
 import { MongoClient, ObjectId } from 'mongodb';
 import { mkdir, writeFile, readFile, readdir, unlink } from 'node:fs/promises';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -719,6 +720,17 @@ app.get('/api/dashboard/stats', auth, async (_, res) => {
     res.status(500).json({ message: 'Failed to load stats' });
   }
 });
+
+// ===== SERVE FRONTEND (production) =====
+const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res) => {
+    if (!req.originalUrl.startsWith('/api/')) {
+      res.sendFile(path.join(frontendDist, 'index.html'));
+    }
+  });
+}
 
 app.listen(process.env.PORT || 8000, () => {
   console.log(`Certificate API running on http://localhost:${process.env.PORT || 8000}`);

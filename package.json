@@ -1,1 +1,11 @@
-{"name":"certificate-generator","private":true,"scripts":{"dev":"npm --prefix frontend run dev","build":"npm --prefix frontend run build","backend":"npm --prefix backend run dev","install:all":"npm install --prefix frontend; npm install --prefix backend"},"dependencies":{"all":"^0.0.0"}}
+{
+  "name": "certificate-generator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:all": "cd frontend && npm install && cd ../backend && npm install",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "node backend/server.js",
+    "dev": "cd frontend && npm run dev"
+  }
+}
