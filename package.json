@@ -1,0 +1,1 @@
+{"name":"certificate-generator","private":true,"scripts":{"dev":"npm --prefix frontend run dev","build":"npm --prefix frontend run build","backend":"npm --prefix backend run dev","install:all":"npm install --prefix frontend; npm install --prefix backend"},"dependencies":{"all":"^0.0.0"}}

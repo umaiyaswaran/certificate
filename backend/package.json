@@ -1,0 +1,25 @@
+{
+  "name": "certificate-generator-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "archiver": "latest",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "mongodb": "latest",
+    "multer": "latest",
+    "pdfkit": "latest",
+    "pngjs": "^7.0.0",
+    "qrcode": "latest",
+    "sharp": "^0.35.4",
+    "uuid": "latest",
+    "xlsx": "latest"
+  }
+}
