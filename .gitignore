@@ -2,9 +2,6 @@ __pycache__/
 *.pyc
 node_modules/
 dist/
-.env
-.env.local
-.env.*.local
 backend/storage/logos/*
 backend/storage/signatures/*
 backend/storage/certificates/*
